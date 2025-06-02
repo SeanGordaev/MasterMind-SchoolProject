@@ -1,12 +1,13 @@
-import pygame, keyboard, string, random
-from componets import Button
+import pygame, keyboard, random
+import Button
 pygame.init()
 
 class MainPlace:
-    def __init__(self, display, w, h):
+    def __init__(self, display):
         self.display = display
-        self.w = w
-        self.h = h
+        self.w = display.get_width()
+        self.h = display.get_height()
+        pygame.display.set_caption("Games")
 
         #* Game setting
         self.Lenght = 4
@@ -23,7 +24,7 @@ class MainPlace:
         self.font = pygame.font.Font('freesansbold.ttf', self.fontSize) # Font for text
 
         #* Widget
-        margin = 0
+        margin = 5
         TakeCol = self.w - margin
         TakeRow = self.h - margin
         self.GamePlace = pygame.Rect(self.w / TakeCol + margin, self.h / TakeRow + margin, (TakeCol - 1) * self.w / TakeCol - (margin * 2), self.h * (TakeRow - 1) / TakeRow - (margin * 2))
