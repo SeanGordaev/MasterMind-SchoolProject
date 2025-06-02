@@ -16,8 +16,9 @@ class MainPlace:
         self.Acts = ("0", "4") # for delete and add
         self.Correct = [] # Place for correct numbers | Game
         while len(self.Correct) < self.Lenght:                                  # | Create the line of numbers
-            Rand_Num = str(random.randint(1, int(max(self.Keys))))    # |
-            self.Correct.append(Rand_Num)                             # |
+            Rand_Num = str(random.randint(1, int(max(self.Keys))))              # |
+            self.Correct.append(Rand_Num)                                       # |
+        self.attempts = 25
 
         #* Setting for Text 
         self.fontSize = 50
@@ -167,7 +168,8 @@ class MainPlace:
             Is_correct = self.Check_guess(self.Guess, self.Correct)
             print(Is_correct)
 
-            if Is_correct == (-1, -1):
+            if Is_correct == (-1, -1) or self.attempts == 0:
+                # todo - Make save user's points by "attempts"
                 return False # end game
             else:
                 if Is_correct == (0, 0): 
@@ -179,6 +181,7 @@ class MainPlace:
                         self.t, self.m = self.AddText(self.mToEnd[2](Is_correct[0]), pygame.font.Font('freesansbold.ttf', self.fontSize // 3), self.mPos)
                     elif Is_correct[1] != 0:
                         self.t, self.m = self.AddText(self.mToEnd[1](Is_correct[1]), pygame.font.Font('freesansbold.ttf', self.fontSize // 3), self.mPos)
+                self.attempts -= 1 # user lost one attempt
 
         if (self.t != None and self.m != None):
             self.display.blit(self.t, self.m)
