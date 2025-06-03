@@ -6,7 +6,6 @@ w, h = 600, 400
 display = pygame.display.set_mode((w, h))
 
 main = Menu.MainMenu(display)
-#print(Game.Correct)
 
 run = True
 while run:
@@ -42,4 +41,19 @@ while run:
     
     pygame.display.update()
     pygame.time.Clock().tick(60)
+
+
+# End Menu
+run = True
+while run:
+    display.fill((255, 255, 255))
+
+    #* Detect exit
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    
+    pygame.display.update()
+    pygame.time.Clock().tick(60)
+
 pygame.quit()
