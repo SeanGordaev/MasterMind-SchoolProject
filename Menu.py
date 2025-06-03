@@ -10,7 +10,6 @@ class MainMenu:
         pygame.display.set_caption("Menu - login or regist")
 
         self.keys = [i for i in string.printable[:62]]
-        print(self.keys)
 
         self.Nikname = ""
         self.Password = ""
@@ -35,7 +34,7 @@ class MainMenu:
         ...
     
     def GetData(self, N, P, Po):
-        with open("BASE\REG.txt", "w") as file:
+        with open("BASE\CURR.txt", "w") as file:
             file.write(f"{N}:{P}:{Po}")
     
     def GoIn(self, Name, Password):
@@ -47,8 +46,7 @@ class MainMenu:
         with sqlite3.connect('BASE\playersDataBase.db') as connect:
             cursor = connect.cursor()
 
-
-            # Create table players - if it is not exits
+            #* Create table players - if it is not exits \------------------------------
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS players (
                 Nikname TEXT,
@@ -58,29 +56,34 @@ class MainMenu:
             """)
             connect.commit()
 
+
+            #* Regist / Log in Player \------------------------------
             cursor.execute("""SELECT * FROM players""")
-            all_players = cursor.fetchall()
-            for check in all_players:
-                if check[0] == Name: # If name user exists
-                    if check[1] == Password: # If Password is correct
-                        self.GetData(check[0], check[1], check[2]) # Save player-data in meta file "REG"
-                        return False
-                    else: # If Password isn't correct - user owens change his name
-                        self.Nikname = ""
-                        self.Password = ""
-                        self.CHANGENAME()
-                break
-            else: # If user is not exits | create users
+            all_players = cursor.fetchall() # Get list of All players
+
+            for player in all_players:
+                if player[0] == Name and player[1] == Password: # If name user exists and password is correct
+                    self.GetData(player[0], player[1], player[2])  # Save user as a "currently player"
+                    return False
+                elif player[0] == Name: # If name user exists, but password isn't correct
+                    self.Nikname = ""
+                    self.Password = ""
+                    self.CHANGENAME()
+                    break
+            else: # If user is not exits, then create users
                 insert = '''
                 INSERT INTO players (Nikname, Password, Points) 
                 VALUES (?, ?, ?);
                 '''
-                player_data = (self.Nikname, self.Password, 0)
+                player_data = (self.Nikname, self.Password, 0) # New Vlues for table
 
+                # Save and join user into table
                 cursor.execute(insert, player_data) 
                 connect.commit()
 
+                self.GetData(self.Nikname, self.Password, 0) # Save user as a "currently player"
                 return False
+        
         return True
 
 
@@ -98,7 +101,7 @@ class MainMenu:
             self.PlaceActive = False
         elif Width_Second and Height_Second:
             self.PlaceActive = True
-        elif Width_but and Height_but:
+        elif Width_but and Height_but and self.Nikname != "" and self.Password != "":
             Goin = self.GoIn(self.Nikname, self.Password) # Regist / Log in
 
             return Goin
@@ -149,5 +152,6 @@ class MainMenu:
                 self.waiting = 0
                 
 
-        
-
+class EndMenu:
+    def __init__(self):
+        pass
