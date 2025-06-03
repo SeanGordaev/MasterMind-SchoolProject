@@ -30,8 +30,13 @@ class MainMenu:
 
         self.waiting = 0 # Stop Time between pressing on the buttons
 
-    def CHANGENAME(self):
-        ...
+        self.is_need_change = False
+        self.CHANGE = self.font.render("This Nickname is exist. you must to change you nickname", True, (150, 0, 0))
+        self.CHANGErect = self.CHANGE.get_rect()
+        self.CHANGErect.center = (self.w / 2, self.h / 8)
+
+        
+
     
     def GetData(self, N, P, Po):
         with open("BASE\CURR.txt", "w") as file:
@@ -68,7 +73,7 @@ class MainMenu:
                 elif player[0] == Name: # If name user exists, but password isn't correct
                     self.nickname = ""
                     self.Password = ""
-                    self.CHANGENAME()
+                    self.is_need_change = True
                     break
             else: # If user is not exits, then create users
                 insert = '''
@@ -127,6 +132,9 @@ class MainMenu:
         pygame.draw.rect(self.display, (10, 10, 10), self.button, 3, 4)
         self.display.blit(text, textRect)
 
+        if self.is_need_change:
+            self.display.blit(self.CHANGE, self.CHANGErect)
+
         self.waiting += 1
 
 
@@ -168,6 +176,13 @@ class EndMenu:
                 self.Data.pop(1)
         except (ValueError):
             self.Data = ("KELO", "10", "10", "Lost")
+
+        with sqlite3.connect('BASE\playersDataBase.db') as connect:
+            cursor = connect.cursor()
+            sql = """UPDATE players SET Points = ? WHERE nickname = ?"""
+            cursor.execute(sql, (self.Data[1], self.Data[0]))
+            connect.commit()
+
         
         
 
@@ -201,5 +216,7 @@ class EndMenu:
         self.display.blit(self.Added, self.AddedRect)
         # WInLost
         self.display.blit(self.Status, self.StatusRect)
+
+
 
 
