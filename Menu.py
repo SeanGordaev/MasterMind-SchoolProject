@@ -1,5 +1,5 @@
 import string, keyboard
-import pygame
+import pygame, sqlite3
 pygame.init()
 
 class MainMenu:
@@ -30,15 +30,59 @@ class MainMenu:
         self.PlaceActive = False
 
         self.waiting = 0 # Stop Time between pressing on the buttons
+
+    def CHANGENAME(self):
+        ...
     
-    def GoIn(self):
+    def GetData(self, N, P, Po):
+        with open("BASE\REG.txt", "w") as file:
+            file.write(f"{N}:{P}:{Po}")
+    
+    def GoIn(self, Name, Password):
 
         #    Name      |   Password     |    Points
         # USERNAME_1  | USERPASSWORD_1 | USERPOINTS_1
         # USERNAME_2 | USERPASSWORD_2 | USERPOINTS_2
 
-        #Todo Make Regist / Log in user to system
-        ...
+        with sqlite3.connect('BASE\playersDataBase.db') as connect:
+            cursor = connect.cursor()
+
+
+            # Create table players - if it is not exits
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS players (
+                Nikname TEXT,
+                Password TEXT,
+                Points INTEGER     
+            );
+            """)
+            connect.commit()
+
+            cursor.execute("""SELECT * FROM players""")
+            all_players = cursor.fetchall()
+            for check in all_players:
+                if check[0] == Name: # If name user exists
+                    if check[1] == Password: # If Password is correct
+                        self.GetData(check[0], check[1], check[2]) # Save player-data in meta file "REG"
+                        return False
+                    else: # If Password isn't correct - user owens change his name
+                        self.Nikname = ""
+                        self.Password = ""
+                        self.CHANGENAME()
+                break
+            else: # If user is not exits | create users
+                insert = '''
+                INSERT INTO players (Nikname, Password, Points) 
+                VALUES (?, ?, ?);
+                '''
+                player_data = (self.Nikname, self.Password, 0)
+
+                cursor.execute(insert, player_data) 
+                connect.commit()
+
+                return False
+        return True
+
 
     def CheckRegisLog(self, pos):
         Width_First = self.FirstInputRect.x <= pos[0] <= self.FirstInputRect.x + self.FirstInputRect.w
@@ -55,10 +99,10 @@ class MainMenu:
         elif Width_Second and Height_Second:
             self.PlaceActive = True
         elif Width_but and Height_but:
-            print("--In Work--")
-            self.GoIn() # Regist / Log in
+            Goin = self.GoIn(self.Nikname, self.Password) # Regist / Log in
 
-        
+            return Goin
+        return True
 
     def Run(self):
         Nikname = self.font.render(self.Nikname, True, (0, 0, 0))

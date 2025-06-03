@@ -20,7 +20,7 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            main.CheckRegisLog(pygame.mouse.get_pos())
+            run = main.CheckRegisLog(pygame.mouse.get_pos())
     
     pygame.display.flip()
     pygame.time.Clock().tick(60)
