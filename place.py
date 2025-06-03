@@ -18,7 +18,7 @@ class MainPlace:
         while len(self.Correct) < self.Lenght:                                  # | Create the line of numbers
             Rand_Num = str(random.randint(1, int(max(self.Keys))))              # |
             self.Correct.append(Rand_Num)                                       # |
-        self.attempts = 25
+        self.attempts = 35
 
         #* Setting for Text 
         self.fontSize = 50
@@ -29,7 +29,6 @@ class MainPlace:
         TakeCol = self.w - margin
         TakeRow = self.h - margin
         self.GamePlace = pygame.Rect(self.w / TakeCol + margin, self.h / TakeRow + margin, (TakeCol - 1) * self.w / TakeCol - (margin * 2), self.h * (TakeRow - 1) / TakeRow - (margin * 2))
-        #self.NotioPlace = pygame.Rect()
 
         self.Bt = Button.Button(display, (0, 0, 0), 120, 35, (self.GamePlace.centerx, self.GamePlace.centery + 55), widthLine = 3, border = 5)
 
@@ -40,7 +39,7 @@ class MainPlace:
         self.flag = True # Protect user - stop spam of letters
         self.TimeOut = 0
 
-        # Messages
+        #* Messages
         self.mCorrect_place = self.mWrong_place = None
         self.t = self.m = None
         self.mToEnd = {
@@ -120,7 +119,7 @@ class MainPlace:
                 self.flag = False
                 self.TimeOut = 0
 
-        #*---# hotkey -> delete, add and exit from their
+        #*---# hotkey -> delete, add, exit from their, auto win
         if (keyboard.is_pressed("backspace")) and (self.flag) and (not self.mDelete) and (len(self.Guess) > 0): # detect for delete
             self.W, self.R = self.AddText(f"Choice index (1 - {len(self.Guess)}) or press 0 for all - Delete", pygame.font.Font('freesansbold.ttf', self.fontSize // 3), (self.GamePlace.centerx, self.GamePlace.centery - self.fontSize * 1.25))
             self.mDelete = True # now "delete at index" on
@@ -138,6 +137,8 @@ class MainPlace:
         elif (keyboard.is_pressed("esc")): # esc. from delete and add
             self.mAdd = False
             self.mDelete = False
+        elif (keyboard.is_pressed("m")):
+            return False
 
         #*---# add messages on display when user: delete / add
         if self.mDelete or self.mAdd:
@@ -160,16 +161,29 @@ class MainPlace:
             # Draw witget
         self.Bt.Draw() # button
 
-            #Draw around the place of game
+            # Draw around the place of game
         pygame.draw.rect(self.display, (0, 0, 0), self.GamePlace, 4, 4)
+
+            # Drawn attempts
+        Atte, AtteReact = self.AddText(str(self.attempts), self.font, (0, 0))
+        AtteReact.topleft = (self.GamePlace.x + 5, self.GamePlace.y + 5)
+        self.display.blit(Atte, AtteReact)
 
         #! Check user's Guess 
         if pygame.mouse.get_pressed()[0] and self.Bt.Is_Pressed(pygame.mouse.get_pos()) and len(self.Guess) == self.Lenght: # if user click on the button
             Is_correct = self.Check_guess(self.Guess, self.Correct)
-            print(Is_correct)
 
             if Is_correct == (-1, -1) or self.attempts == 0:
-                # todo - Make save user's points by "attempts"
+
+                with open("BASE\CURR.txt", "r") as file:
+                    Name, Password, Point = file.readline().split(":")
+                    Point = int(Point)
+                with open("BASE\CURR.txt", "w") as file:
+                    if self.attempts == 0:
+                        file.write(f"{Name}:{Password}:{Point + self.attempts}:lost")
+                    else:
+                        file.write(f"{Name}:{Password}:{Point + self.attempts}:win")
+
                 return False # end game
             else:
                 if Is_correct == (0, 0): 
@@ -181,7 +195,10 @@ class MainPlace:
                         self.t, self.m = self.AddText(self.mToEnd[2](Is_correct[0]), pygame.font.Font('freesansbold.ttf', self.fontSize // 3), self.mPos)
                     elif Is_correct[1] != 0:
                         self.t, self.m = self.AddText(self.mToEnd[1](Is_correct[1]), pygame.font.Font('freesansbold.ttf', self.fontSize // 3), self.mPos)
-                self.attempts -= 1 # user lost one attempt
+                if self.flag:
+                    self.attempts -= 1 # user lost one attempt
+                    self.flag = False
+                    self.TimeOut = 0
 
         if (self.t != None and self.m != None):
             self.display.blit(self.t, self.m)
