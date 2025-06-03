@@ -138,7 +138,7 @@ class MainPlace:
             self.mAdd = False
             self.mDelete = False
         elif (keyboard.is_pressed("m")):
-            return False
+            self.attempts = 0
 
         #*---# add messages on display when user: delete / add
         if self.mDelete or self.mAdd:
@@ -180,9 +180,10 @@ class MainPlace:
                     Point = int(Point)
                 with open("BASE\CURR.txt", "w") as file:
                     if self.attempts == 0:
-                        file.write(f"{Name}:{Password}:{Point + self.attempts}:lost")
+                        file.write(f"{Name}:{Password}:{Point + self.attempts}:{self.attempts}:lost")
                     else:
-                        file.write(f"{Name}:{Password}:{Point + self.attempts}:win")
+                        file.write(f"{Name}:{Password}:{Point + self.attempts}:{self.attempts}:win")
+                    # Save in "Curr.txt" as NAME:PASSWORD:POINT(afrerGame):PointThatAdded:StatusGame(win/lost)
 
                 return False # end game
             else:

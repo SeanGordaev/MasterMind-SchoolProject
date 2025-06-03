@@ -42,11 +42,13 @@ while run:
     pygame.display.update()
     pygame.time.Clock().tick(60)
 
-
+Game = Menu.EndMenu(display)
 # End Menu
 run = True
 while run:
     display.fill((255, 255, 255))
+
+    Game.Run()
 
     #* Detect exit
     for event in pygame.event.get():
